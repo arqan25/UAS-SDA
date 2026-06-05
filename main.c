@@ -107,6 +107,7 @@ int main() {
                 printf("Berat Sampah  : %.2f kg\n", berat);
                 printf("Total Pendapatan: Rp%d\n", totalHarga);
                 printf("===================================\n");
+
                 counterIdTransaksi++;
                 break;
             }
