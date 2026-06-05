@@ -5,15 +5,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-//struktur data
-typedef struct NodeNasabah{
+typedef struct NodeNasabah {
     int idNasabah;
     char nama[50];
     int saldo;
     struct NodeNasabah *left, *right;
 } NodeNasabah;
 
-//deklarasi fungsi
+NodeNasabah* createNasabahNode(int id, char* nama);
 NodeNasabah* insertNasabah(NodeNasabah* root, int id, char* nama);
 NodeNasabah* searchNasabah(NodeNasabah* root, int id);
 
