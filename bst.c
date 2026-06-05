@@ -27,3 +27,16 @@ NodeNasabah* insertNasabah (NodeNasabah* root, int id, char* nama){
     }
     return root;
 }
+//fungsi pencarian data nasabah berdasarkan id
+NodeNasabah* searchNasabah(NodeNasabah* root, int id){
+    //jika bst kosong atau id langsung ditemukan
+    if (root == NULL || root->idNasabah == id){
+        return root;
+    }
+    //jika id yang dicari lebih kecil
+    if (id < root->idNasabah){
+        return searchNasabah(root->left, id);
+    }
+    //jika id yang dicari lebih besar
+    return searchNasabah(root->right, id);
+}
