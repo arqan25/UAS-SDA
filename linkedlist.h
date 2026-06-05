@@ -3,14 +3,15 @@
 
 typedef struct NodeTransaksi {
     int idTransaksi;
-    char jenis[20];
-    float jumlah;
+    int idNasabah;
+    char jenisSampah[30];
+    float berat;
+    int totalHarga;
     struct NodeTransaksi *next;
 } NodeTransaksi;
 
-// Deklarasi fungsi
-void insertTransaksi(NodeTransaksi **head, int id, char jenis[], float jumlah);
-NodeTransaksi* linearSearchTransaksi(NodeTransaksi *head, int id);
+void insertTransaksi(NodeTransaksi **head, int idTx, int idNasabah, char jenis[], float berat, int total);
+NodeTransaksi* linearSearchTransaksi(NodeTransaksi *head, int idTx);
 void tampilkanTransaksi(NodeTransaksi *head);
 
 #endif
