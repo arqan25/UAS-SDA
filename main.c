@@ -5,12 +5,24 @@
 #include "linkedlist.h"
 #include "queue.h"
 
-// Simulasi harga sampah per kg
+void clearScreen() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+void tungguEnter() {
+    printf("\nTekan [ENTER] untuk kembali ke menu utama...");
+    getchar();
+}
+
 int getHargaPerKg(char jenis[]) {
     if (strcasecmp(jenis, "Plastik") == 0) return 3000;
     if (strcasecmp(jenis, "Kertas") == 0) return 2000;
     if (strcasecmp(jenis, "Logam") == 0) return 6000;
-    return 1000; // Harga default untuk jenis lainnya
+    return 1000;
 }
 
 int main() {
@@ -20,61 +32,81 @@ int main() {
     initQueue(&antrian);
 
     int pilihan;
-    int counterIdNasabah = 101;  // ID Nasabah otomatis mulai dari 101
-    int counterIdTransaksi = 1;  // ID Transaksi otomatis mulai dari 1
+    int counterIdNasabah = 101;  
+    int counterIdTransaksi = 1;  
 
     while (1) {
-        printf("------- SISTEM BANK SAMPAH DIGITAL -------\n");
-        printf("1. Pendaftaran Nasabah Baru\n");
-        printf("2. Masuk Antrian Setor Sampah\n");
-        printf("3. Proses Setor Sampah (Petugas)\n");
-        printf("4. Lihat Semua Riwayat Transaksi\n");
-        printf("5. Keluar Aplikasi\n");
+        clearScreen();
+        printf("=================================================\n");
+        printf("           SISTEM BANK SAMPAH DIGITAL            \n");
+        printf("=================================================\n");
+        printf(" [1] Pendaftaran Nasabah Baru\n");
+        printf(" [2] Masuk Antrian Setor Sampah\n");
+        printf(" [3] Proses Setor Sampah (Petugas)\n");
+        printf(" [4] Lihat Semua Riwayat Transaksi\n");
+        printf(" [5] Keluar Aplikasi\n");
+        printf("=================================================\n");
         printf("Pilih menu (1-5): ");
-        scanf("%d", &pilihan);
-        getchar(); // Membersihkan buffer newline
+        
+        if (scanf("%d", &pilihan) != 1) {
+            printf("Input harus berupa angka!\n");
+            getchar(); getchar();
+            continue;
+        }
+        getchar(); 
 
         switch (pilihan) {
             case 1: {
+                clearScreen();
                 char nama[50];
-                printf("\n--- Pendaftaran Nasabah ---\n");
-                printf("Masukkan Nama Nasabah: ");
+                printf("=== PENDAFTARAN NASABAH ===\n");
+                printf("Masukkan Nama Nasabah Baru : ");
                 fgets(nama, sizeof(nama), stdin);
-                nama[strcspn(nama, "\n")] = 0; // Menghapus newline di akhir string
+                nama[strcspn(nama, "\n")] = 0; 
 
                 rootNasabah = insertNasabah(rootNasabah, counterIdNasabah, nama);
-                printf("[SUKSES] Data Tersimpan!\n");
-                printf("ID Nasabah Anda: %d\n", counterIdNasabah);
+                
+                printf("\n-------------------------------------------------\n");
+                printf(" [SUKSES] Data Berhasil Tersimpan!\n");
+                printf(" ID Nasabah Baru Anda : %d\n", counterIdNasabah);
+                printf("-------------------------------------------------\n");
+                
                 counterIdNasabah++;
+                tungguEnter();
                 break;
             }
             case 2: {
-                // Fitur pendukung untuk memasukkan nasabah ke antrian fisik sebelum dilayani
+                clearScreen();
                 int id;
-                printf("\n--- Masuk Antrian ---\n");
-                printf("Masukkan ID Nasabah: ");
+                printf("=== MASUK ANTRIAN SETOR SAMPAH ===\n");
+                printf("Masukkan ID Nasabah : ");
                 scanf("%d", &id);
+                getchar(); 
                 
                 NodeNasabah* nasabah = searchNasabah(rootNasabah, id);
                 if (nasabah != NULL) {
                     enqueue(&antrian, id);
-                    printf("[SUKSES] Nasabah %s masuk ke dalam antrian.\n", nasabah->nama);
+                    printf("\n[SUKSES] Nasabah %s masuk ke antrian.\n", nasabah->nama);
                 } else {
-                    printf("[ERROR] ID Nasabah tidak ditemukan! Silahkan daftar terlebih dahulu.\n");
+                    printf("\n[ERROR] ID %d tidak ditemukan!\n", id);
                 }
+                tungguEnter();
                 break;
             }
             case 3: {
+                clearScreen();
+                printf("=== PROSES SETOR SAMPAH (PETUGAS) ===\n");
+
                 if (isEmpty(&antrian)) {
-                    printf("\n[INFO] Antrian kosong. Tidak ada nasabah yang menyetor sampah.\n");
+                    printf("\n[INFO] Antrian kosong.\n");
+                    tungguEnter();
                     break;
                 }
 
-                // Ambil nasabah terdepan dari antrian
                 int idNasabahAktif = dequeue(&antrian);
                 NodeNasabah* nasabah = searchNasabah(rootNasabah, idNasabahAktif);
 
-                printf("\n--- Melayani Nasabah: %s (ID: %d) ---\n", nasabah->nama, nasabah->idNasabah);
+                printf("Melayani Nasabah: %s (ID: %d)\n\n", nasabah->nama, nasabah->idNasabah);
                 
                 char jenis[30];
                 float berat;
@@ -84,43 +116,43 @@ int main() {
 
                 printf("Input Berat Sampah (kg): ");
                 scanf("%f", &berat);
+                getchar(); 
 
-                // Hitung Nilai Sampah
                 int hargaPerKg = getHargaPerKg(jenis);
                 int totalHarga = (int)(berat * hargaPerKg);
-                printf("-> Hitung Nilai Sampah: %.2f kg x Rp%d = Rp%d\n", berat, hargaPerKg, totalHarga);
-
-                // Tambah Saldo Nasabah
+                
                 nasabah->saldo += totalHarga;
-                printf("-> Saldo Nasabah berhasil ditambah. Saldo sekarang: Rp%d\n", nasabah->saldo);
 
-                // Simpan Riwayat Transaksi (Linked List)
                 insertTransaksi(&listTransaksi, counterIdTransaksi, idNasabahAktif, jenis, berat, totalHarga);
                 
-                // Tampilkan Bukti Transaksi
-                printf("\n===================================\n");
-                printf("       BUKTI TRANSAKSI DIGITAL     \n");
-                printf("===================================\n");
-                printf("ID Transaksi  : TX%03d\n", counterIdTransaksi);
-                printf("ID/Nama       : %d / %s\n", nasabah->idNasabah, nasabah->nama);
-                printf("Jenis Sampah  : %s\n", jenis);
-                printf("Berat Sampah  : %.2f kg\n", berat);
-                printf("Total Pendapatan: Rp%d\n", totalHarga);
-                printf("===================================\n");
+                printf("\n=== STRUK BUKTI TRANSAKSI ===\n");
+                printf(" ID Transaksi  : TX%03d\n", counterIdTransaksi);
+                printf(" ID / Nama     : %d / %s\n", nasabah->idNasabah, nasabah->nama);
+                printf(" Jenis Sampah  : %s (Rp%d/kg)\n", jenis, hargaPerKg);
+                printf(" Berat Sampah  : %.2f kg\n", berat);
+                printf("-------------------------------------------------\n");
+                printf(" Total Hasil   : Rp%d\n", totalHarga);
+                printf(" Total Saldo   : Rp%d\n", nasabah->saldo);
+                printf("==============================\n");
 
                 counterIdTransaksi++;
+                tungguEnter();
                 break;
             }
             case 4: {
-                printf("\n--- Seluruh Riwayat Transaksi Bank Sampah ---\n");
+                clearScreen();
+                printf("=== REKAP SELURUH RIWAYAT TRANSAKSI ===\n\n");
                 tampilkanTransaksi(listTransaksi);
+                tungguEnter();
                 break;
             }
             case 5:
-                printf("\nProgram selesai. Terima kasih!\n");
+                clearScreen();
+                printf("\nTerima kasih telah menggunakan Bank Sampah!\n\n");
                 exit(0);
             default:
-                printf("\nPilihan tidak valid!\n");
+                printf("\n[Peringatan] Pilihan tidak valid!\n");
+                tungguEnter();
         }
     }
     return 0;
